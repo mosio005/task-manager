@@ -43,3 +43,34 @@ class Task(models.Model):
 
     def __str__(self):
         return self.title
+
+
+
+class TaskStatusHistory(models.Model):
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name='task_history',
+    )
+
+    old_status = models.CharField(
+        max_length=15,
+        choices=Task.StatusChoices.choices
+    )
+
+    new_status = models.CharField(
+        max_length=15,
+        choices=Task.StatusChoices.choices
+    )
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='status_changes'
+    )
+
+    changed_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f'{self.task.title}: {self.old_status} -> {self.new_status}'
