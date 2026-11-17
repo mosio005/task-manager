@@ -74,3 +74,24 @@ class TaskStatusHistory(models.Model):
 
     def __str__(self):
         return f'{self.task.title}: {self.old_status} -> {self.new_status}'
+    
+
+
+
+class TaskComment(models.Model):
+    text = models.TextField(null=False)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='user_comments',
+    )
+    task = models.ForeignKey(
+        Task,
+        on_delete=models.CASCADE,
+        related_name='task_comments'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user.username}: {self.text[:30]}'
