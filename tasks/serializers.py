@@ -80,3 +80,28 @@ class TaskSerializer(serializers.ModelSerializer):
                     )
 
             return super().update(instance, validated_data)
+
+
+class TaskStatusHistorySerializer(serializers.ModelSerializer):
+    task_title = serializers.CharField(
+        source='task.title',
+        read_only=True
+    )
+
+    user_name = serializers.CharField(
+        source='user.username',
+        read_only=True
+    )
+
+    class Meta:
+        model = TaskStatusHistory
+        fields = [
+            'id',
+            'task_title',
+            'user_name',
+            'old_status',
+            'new_status',
+            'changed_at'
+        ]
+        
+        read_only_fields = fields
