@@ -2,7 +2,7 @@ from rest_framework import serializers
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Task, TaskStatusHistory
+from .models import Task, TaskStatusHistory, TaskComment
 
 
 class TaskSerializer(serializers.ModelSerializer):
@@ -105,3 +105,48 @@ class TaskStatusHistorySerializer(serializers.ModelSerializer):
         ]
         
         read_only_fields = fields
+
+
+
+class TaskCommentSerializer(serializers.ModelSerializer):
+
+    task_id = serializers.PrimaryKeyRelatedField(
+        source='task',
+        queryset=Task.objects.all(),
+        write_only=True
+    )
+
+    user_username = serializers.CharField(
+        source='user.username',
+        read_only=True
+    )
+
+    task_title = serializers.CharField(
+        source='task.title',
+        read_only=True
+    )
+
+    class Meta:
+        model = TaskComment
+        fields = [
+            'id',
+            'text',
+            'user',
+            'task_id',
+            'created_at',
+            'user_username',
+            'task_title'
+        ]
+        extra_kwargs = {
+            'user': {'read_only': True},
+            'created_at': {'read_only': True}
+        }
+
+
+    def validate_text(self, text):
+        if not text.split():
+            raise serializers.ValidationError(
+                'the comment can not be empty'
+            )
+        return text.strip()
+        
