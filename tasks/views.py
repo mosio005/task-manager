@@ -1,6 +1,7 @@
 from django.db.models import Case, When, Value, Q, BooleanField
 from django.utils import timezone
 from django.db import transaction
+from django.contrib.auth import get_user_model
 
 from rest_framework.response import Response
 from rest_framework import status
@@ -16,6 +17,9 @@ from .models import Task
 from .serializers import TaskSerializer
 from .filters import TaskFilter
 from .permissions import TaskOwner
+
+User = get_user_model()
+
 
 
 class TaskViewSet(viewsets.ModelViewSet):
