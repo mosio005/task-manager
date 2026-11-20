@@ -13,10 +13,10 @@ from rest_framework.serializers import ValidationError
 
 from django_filters.rest_framework import DjangoFilterBackend 
 
-from .models import Task
-from .serializers import TaskSerializer
+from .models import Task, TaskStatusHistory, TaskComment
+from .serializers import TaskSerializer, TaskStatusHistorySerializer, TaskCommentSerializer
 from .filters import TaskFilter
-from .permissions import TaskOwner
+from .permissions import TaskOwner, CommentOwner
 
 User = get_user_model()
 
@@ -134,3 +134,29 @@ class TaskViewSet(viewsets.ModelViewSet):
             status=status.HTTP_200_OK
         )
 
+
+
+class TaskCommentViewSet(viewsets.ModelViewSet):
+    queryset = TaskComment.objects.all().select_related(
+        'task', 'user'
+    )
+    serializer_class = TaskCommentSerializer
+    permission_classes = [IsAuthenticated, CommentOwner]
+
+
+    def get_queryset(self):
+        queryset =  super().get_queryset()
+
+        return queryset.filter(
+            task__owner=self.request.user
+        ).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        if serializer.validated_data['task'].owner != self.request.user:
+            raise ValidationError(
+                'you cant creat comment on another users task'
+            )
+
+        serializer.save(
+            user=self.request.user
+        )
