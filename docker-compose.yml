@@ -1,0 +1,19 @@
+
+services:
+  web:
+    build: .
+    container_name: task_manager_api
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      PYTHONDONTWRITEBYTECODE: 1
+      PYTHONUNBUFFERED: 1
+
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
